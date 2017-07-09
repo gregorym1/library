@@ -55,16 +55,8 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         String query = "SELECT * FROM visitors WHERE visitors.visitor_id = '"+id+"' ;";
         String bookPresence = "";
         try {
-            setDriver("com.mysql.jdbc.Driver");
-
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
             //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(query);
 
             while (rs.next()) {
                 bookPresence = rs.getString(6);
@@ -76,10 +68,7 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         } finally {
             //Close connection ,stmt and result set here
             try {
-                con.close();
-            } catch (SQLException se) {  }
-            try {
-                stmt.close();
+                rs.close();
             } catch (SQLException se) {  }
         }
         return bookPresence;
@@ -89,16 +78,8 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         String query = "SELECT * FROM visitors WHERE visitors.pasport = '"+pasport+"' ;";
         ArrayList visitor = new ArrayList();
         try {
-            setDriver("com.mysql.jdbc.Driver");
-
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
             //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(query);
 
             while (rs.next()) {
                 visitor.add(rs.getString(2));
@@ -113,10 +94,7 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         } finally {
             //Close connection ,stmt and result set here
             try {
-                con.close();
-            } catch (SQLException se) {  }
-            try {
-                stmt.close();
+                rs.close();
             } catch (SQLException se) {  }
         }
         return visitor;
@@ -127,15 +105,8 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         String query = "SELECT * FROM visitors;";
         ArrayList visitorsBy6 = new ArrayList();
         try {
-            setDriver("com.mysql.jdbc.Driver");
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
             //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(query);
 
             while (rs.next()) {
                 visitorsBy6.add(rs.getString(1));
@@ -151,10 +122,7 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         } finally {
             //Close connection ,stmt and result set here
             try {
-                con.close();
-            } catch (SQLException se) {  }
-            try {
-                stmt.close();
+                rs.close();
             } catch (SQLException se) {  }
         }
         return visitorsBy6;
@@ -165,16 +133,8 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         String query = "SELECT * FROM visitors WHERE visitors.visitor_id = '"+id+"' ;";
         String visitorB = "0";
         try {
-            setDriver("com.mysql.jdbc.Driver");
-
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
             //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(query);
 
             while (rs.next()) {
                 if (!rs.getString(2).isEmpty())
@@ -187,13 +147,33 @@ public class SqlDalVisitorManager implements IDalVisitorManager{
         } finally {
             //Close connection ,stmt and result set here
             try {
+                rs.close();
+            } catch (SQLException se) {  }
+        }
+        return visitorB;
+    }
+    private ResultSet doQueryWithRS(String query) throws SQLException {
+        try {
+            setDriver("com.mysql.jdbc.Driver");
+
+            //Устанавливаем соединение
+            con = DriverManager.getConnection(url, userDB, passwordDB);
+
+            //создаем объект для работы с запросом запросу
+            stmt = con.createStatement();
+
+            return stmt.executeQuery(query);
+        } catch (SQLException sqlEx) {
+            throw new SQLException(sqlEx);//have to return something
+        } finally {
+            //Close connection ,stmt and result set here
+            try {
                 con.close();
             } catch (SQLException se) {  }
             try {
                 stmt.close();
             } catch (SQLException se) {  }
         }
-        return visitorB;
     }
 
     private void doQuery(String query){

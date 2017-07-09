@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by Vitalii on 05.11.2016.
  */
 public class VisitorManager {
-    IDalVisitorManager dalVisitorManager;
+    private IDalVisitorManager dalVisitorManager;
     public VisitorValidator visitorValidator = new VisitorValidator();
     public OperationStatus operationStatus = new OperationStatus();
 

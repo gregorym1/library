@@ -15,10 +15,12 @@ import java.util.ResourceBundle;
  * Created by Vitalii on 04.11.2016.
  */
 public class LibraryService {
-    BookManager bookManager;
-    VisitorManager visitorManager;
-    ManagerFactory managerFactory;
+    private BookManager bookManager;
+    private VisitorManager visitorManager;
+    private ManagerFactory managerFactory;
+
     public OperationStatus operationStatus = new OperationStatus();
+
     private static final String BUILDER_CLASS_DAL_MANAGER = "dalManager";
 
     public LibraryService(){
@@ -29,12 +31,8 @@ public class LibraryService {
             Class classDalManagerFactory = Class.forName(classNameDalManager);
             IDalManagerFactory dalManagerFactory =(IDalManagerFactory) classDalManagerFactory.newInstance();
             managerFactory = new ManagerFactory(dalManagerFactory);
-        } catch (ClassNotFoundException e){
-            System.out.print("1");
-        } catch (InstantiationException e){
-            System.out.print("2");
-        } catch (IllegalAccessException e){
-            System.out.print("3");
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e){
+            throw new RuntimeException("Exception with load dal-class from properties file", e);
         }
 
         bookManager = managerFactory.createBookManager();

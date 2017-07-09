@@ -14,8 +14,8 @@ import static org.mockito.Mockito.*;
  * Created by Vitalii on 05.11.2016.
  */
 public class BookManagerTest extends TestCase{
-    BookManager tester;
-    SqlDalBookManager sqlDalBookManager;
+    private BookManager tester;
+    private SqlDalBookManager sqlDalBookManager;
 
     protected void setUp(){
         sqlDalBookManager = mock(SqlDalBookManager.class);
@@ -24,7 +24,6 @@ public class BookManagerTest extends TestCase{
             books.add(""+i);
         }
         when(sqlDalBookManager.getListOfAllBooks()).thenReturn(books);
-        when(sqlDalBookManager.checkBookById("777")).thenReturn("1");
         when(sqlDalBookManager.checkBookById("777")).thenReturn("1");
         when(sqlDalBookManager.checkBookById("888")).thenReturn("0");
         when(sqlDalBookManager.getBookPresence("777")).thenReturn("1");

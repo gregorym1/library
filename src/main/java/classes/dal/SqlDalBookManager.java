@@ -15,6 +15,10 @@ public class SqlDalBookManager implements IDalBookManager{
     private static final String userDB = "root";
     private static final String passwordDB = "13784765";
 
+    private static final String GET_ALL_BOOKS = "SELECT * FROM books;";
+    private static final String DELETE_ALL_BOOKS = "TRUNCATE TABLE books";
+    private static final String DELETE_ALL_DECOMMISSIONED_BOOKS = "TRUNCATE TABLE decommissioned_books";
+
     //JDBC variables for opening and managing connection
     private static Connection con;
     private static Statement stmt;
@@ -38,19 +42,10 @@ public class SqlDalBookManager implements IDalBookManager{
 
     @Override
     public ArrayList getListOfAllBooks(){
-        String query = "SELECT * FROM books;";
         ArrayList booksBy6 = new ArrayList();
         try {
-            setDriver("com.mysql.jdbc.Driver");
-
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
             //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(GET_ALL_BOOKS);
 
             while (rs.next()) {
                 booksBy6.add(rs.getString(1));
@@ -66,10 +61,7 @@ public class SqlDalBookManager implements IDalBookManager{
         } finally {
             //Close connection ,stmt and result set here
             try {
-                con.close();
-            } catch (SQLException se) {  }
-            try {
-                stmt.close();
+                rs.close();
             } catch (SQLException se) {  }
         }
         return booksBy6;
@@ -77,14 +69,12 @@ public class SqlDalBookManager implements IDalBookManager{
 
     @Override
     public void deleteAllBooks() {
-        String query = "TRUNCATE TABLE books";
-        doQuery(query);
+        doQuery(DELETE_ALL_BOOKS);
     }
 
     @Override
     public void deleteAllDecommissionedBooks() {
-        String query = "TRUNCATE TABLE decommissioned_books";
-        doQuery(query);
+        doQuery(DELETE_ALL_DECOMMISSIONED_BOOKS);
     }
 
     @Override
@@ -99,35 +89,22 @@ public class SqlDalBookManager implements IDalBookManager{
         String query = "SELECT * FROM books WHERE books.name = '"+name+"' ;";
         ArrayList book = new ArrayList();
         try {
-            setDriver("com.mysql.jdbc.Driver");
-
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
             //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(query);
 
             while (rs.next()) {
                 book.add(rs.getString(2));
                 book.add(rs.getString(3));
                 book.add(rs.getString(4));
                 book.add(rs.getString(5));
-
             }
-
 
         } catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
         } finally {
             //Close connection ,stmt and result set here
             try {
-                con.close();
-            } catch (SQLException se) {  }
-            try {
-                stmt.close();
+                rs.close();
             } catch (SQLException se) {  }
         }
         return book;
@@ -138,16 +115,8 @@ public class SqlDalBookManager implements IDalBookManager{
         String query = "SELECT * FROM books WHERE books.book_id = '"+id+"' ;";
         String bookB = "0";
         try {
-            setDriver("com.mysql.jdbc.Driver");
-
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
             //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(query);
 
             while (rs.next()) {
                 if(!rs.getString(2).isEmpty()){
@@ -155,17 +124,12 @@ public class SqlDalBookManager implements IDalBookManager{
                 }
 
             }
-
-
         } catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
         } finally {
             //Close connection ,stmt and result set here
             try {
-                con.close();
-            } catch (SQLException se) {  }
-            try {
-                stmt.close();
+                rs.close();
             } catch (SQLException se) {  }
         }
         return bookB;
@@ -218,16 +182,7 @@ public class SqlDalBookManager implements IDalBookManager{
         String query = "SELECT * FROM books WHERE books.book_id = '"+id+"' ;";
         String bookName = "";
         try {
-            setDriver("com.mysql.jdbc.Driver");
-
-            //Устанавливаем соединение
-            con = DriverManager.getConnection(url, userDB, passwordDB);
-
-            //создаем объект для работы с запросом запросу
-            stmt = con.createStatement();
-            stmt.execute(query);
-            //извлекаем данные
-            rs = stmt.executeQuery(query);
+            rs = doQueryWithRS(query);
 
             while (rs.next()) {
                 bookName = rs.getString(2);
@@ -239,10 +194,7 @@ public class SqlDalBookManager implements IDalBookManager{
         } finally {
             //Close connection ,stmt and result set here
             try {
-                con.close();
-            } catch (SQLException se) {  }
-            try {
-                stmt.close();
+                rs.close();
             } catch (SQLException se) {  }
         }
         return bookName;
@@ -262,6 +214,27 @@ public class SqlDalBookManager implements IDalBookManager{
     public String checkDecommissionedBookById(String id){
         String query = "SELECT * FROM decommissioned_books WHERE decommissioned_books.dbook_id = '"+id+"' ;";
         String dBookB = "0";
+        try{
+            rs = doQueryWithRS(query);
+
+            while (rs.next()) {
+                if(!rs.getString(2).isEmpty()){
+                    dBookB = "1";
+                }
+
+            }
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+        finally {
+            try {
+                rs.close();
+            } catch (SQLException e) {   }
+        }
+        return dBookB;
+    }
+
+    private ResultSet doQueryWithRS(String query) throws SQLException {
         try {
             setDriver("com.mysql.jdbc.Driver");
 
@@ -270,20 +243,10 @@ public class SqlDalBookManager implements IDalBookManager{
 
             //создаем объект для работы с запросом запросу
             stmt = con.createStatement();
-            stmt.execute(query);
-            //извлекаем данные
-            rs = stmt.executeQuery(query);
 
-            while (rs.next()) {
-                if(!rs.getString(2).isEmpty()){
-                    dBookB = "1";
-                }
-
-            }
-
-
+            return stmt.executeQuery(query);
         } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
+            throw new SQLException(sqlEx);//have to return something
         } finally {
             //Close connection ,stmt and result set here
             try {
@@ -293,7 +256,6 @@ public class SqlDalBookManager implements IDalBookManager{
                 stmt.close();
             } catch (SQLException se) {  }
         }
-        return dBookB;
     }
 
     private void doQuery(String query){
@@ -319,7 +281,4 @@ public class SqlDalBookManager implements IDalBookManager{
             } catch (SQLException se) {  }
         }
     }
-
-
-
 }

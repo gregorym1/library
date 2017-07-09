@@ -10,8 +10,8 @@ import java.util.ArrayList;
  * Created by Vitalii on 04.11.2016.
  */
 public class BookManager {
-    IDalBookManager dalBookManager;
-    public BookValidator bookValidator = new BookValidator();
+    private IDalBookManager dalBookManager;
+    private BookValidator bookValidator = new BookValidator();
     public OperationStatus operationStatus = new OperationStatus();
 
     public BookManager(IDalBookManager dalBookManager){
@@ -109,7 +109,7 @@ public class BookManager {
     }
 
     public OperationStatus giveBook(String book_id){
-        if (dalBookManager.getBookPresence(book_id) == "1") {
+        if (dalBookManager.getBookPresence(book_id).equals("1")) {
             dalBookManager.updateBookPresence(book_id, false);
             operationStatus.setStatus(true);
         } else {
